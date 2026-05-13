@@ -1,6 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TaskModel {
+  static const String pendingStatus = 'pending';
+  static const String completedStatus = 'completed';
+  static const String lowPriority = 'low';
+  static const String mediumPriority = 'medium';
+  static const String highPriority = 'high';
+
   final String id;
   final String title;
   final String description;
@@ -43,16 +49,18 @@ class TaskModel {
     );
   }
 
-  factory TaskModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+  factory TaskModel.fromFirestore(
+    DocumentSnapshot<Map<String, dynamic>> documentSnapshot,
+  ) {
+    final data = documentSnapshot.data() ?? <String, dynamic>{};
     return TaskModel(
-      id: doc.id,
+      id: documentSnapshot.id,
       title: data['title'] ?? '',
       description: data['description'] ?? '',
-      dueDate: (data['dueDate'] as Timestamp).toDate(),
-      status: data['status'] ?? 'pending',
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      priority: data['priority'] ?? 'medium',
+      dueDate: _readDate(data['dueDate'], DateTime.now()),
+      status: data['status'] ?? pendingStatus,
+      createdAt: _readDate(data['createdAt'], DateTime.now()),
+      priority: data['priority'] ?? mediumPriority,
       userId: data['userId'] ?? '',
     );
   }
@@ -67,5 +75,17 @@ class TaskModel {
       'priority': priority,
       'userId': userId,
     };
+  }
+
+  static DateTime _readDate(Object? value, DateTime fallbackDate) {
+    if (value is Timestamp) {
+      return value.toDate();
+    }
+
+    if (value is DateTime) {
+      return value;
+    }
+
+    return fallbackDate;
   }
 }
