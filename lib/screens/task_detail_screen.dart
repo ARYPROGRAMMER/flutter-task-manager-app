@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -54,6 +55,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   }
 
   Future<void> _selectDate() async {
+    HapticFeedback.selectionClick();
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
@@ -66,6 +68,13 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         _selectedDate = pickedDate;
       });
     }
+  }
+
+  void _selectShortcutDate(Duration offset) {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _selectedDate = DateTime.now().add(offset);
+    });
   }
 
   Future<void> _saveTask() async {
@@ -183,87 +192,168 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           ],
         ),
         body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 680),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (widget.task != null)
-                      _TaskHeroHeader(task: widget.task!),
-                    if (_formErrorMessage != null)
-                      _TaskFormError(message: _formErrorMessage!),
-                    CustomTextField(
-                      controller: _titleController,
-                      labelText: 'Task Title',
-                      prefixIcon: Icons.title_rounded,
-                      textInputAction: TextInputAction.next,
-                      textCapitalization: TextCapitalization.sentences,
-                      validator: _validateTitle,
-                    ),
-                    CustomTextField(
-                      controller: _descriptionController,
-                      labelText: 'Description',
-                      prefixIcon: Icons.notes_rounded,
-                      textInputAction: TextInputAction.newline,
-                      textCapitalization: TextCapitalization.sentences,
-                      minLines: 4,
-                      maxLines: 6,
-                      validator: _validateDescription,
-                    ),
-                    const SizedBox(height: 16),
-                    _DueDateField(
-                      selectedDate: _selectedDate,
-                      isOverdue: _isSelectedDateOverdue(),
-                      onTap: _selectDate,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      'Priority',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w900,
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 680),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _TaskFormHeader(isEditing: _isEditing),
+                      if (widget.task != null)
+                        _TaskHeroHeader(task: widget.task!),
+                      if (_formErrorMessage != null)
+                        _TaskFormError(message: _formErrorMessage!),
+                      CustomTextField(
+                        controller: _titleController,
+                        labelText: 'Task Title',
+                        prefixIcon: Icons.title_rounded,
+                        textInputAction: TextInputAction.next,
+                        textCapitalization: TextCapitalization.sentences,
+                        validator: _validateTitle,
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    SegmentedButton<String>(
-                      segments: const [
-                        ButtonSegment<String>(
-                          value: TaskModel.lowPriority,
-                          label: Text('Low'),
-                          icon: Icon(Icons.arrow_downward_rounded),
+                      CustomTextField(
+                        controller: _descriptionController,
+                        labelText: 'Description',
+                        prefixIcon: Icons.notes_rounded,
+                        textInputAction: TextInputAction.newline,
+                        textCapitalization: TextCapitalization.sentences,
+                        minLines: 4,
+                        maxLines: 6,
+                        validator: _validateDescription,
+                      ),
+                      const SizedBox(height: 16),
+                      _DueDateField(
+                        selectedDate: _selectedDate,
+                        isOverdue: _isSelectedDateOverdue(),
+                        onTap: _selectDate,
+                      ),
+                      const SizedBox(height: 12),
+                      _DateShortcutBar(
+                        onToday: () => _selectShortcutDate(Duration.zero),
+                        onTomorrow: () =>
+                            _selectShortcutDate(const Duration(days: 1)),
+                        onNextWeek: () =>
+                            _selectShortcutDate(const Duration(days: 7)),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Priority',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
                         ),
-                        ButtonSegment<String>(
-                          value: TaskModel.mediumPriority,
-                          label: Text('Medium'),
-                          icon: Icon(Icons.drag_handle_rounded),
+                      ),
+                      const SizedBox(height: 10),
+                      SegmentedButton<String>(
+                        segments: const [
+                          ButtonSegment<String>(
+                            value: TaskModel.lowPriority,
+                            label: Text('Low'),
+                            icon: Icon(Icons.arrow_downward_rounded),
+                          ),
+                          ButtonSegment<String>(
+                            value: TaskModel.mediumPriority,
+                            label: Text('Medium'),
+                            icon: Icon(Icons.drag_handle_rounded),
+                          ),
+                          ButtonSegment<String>(
+                            value: TaskModel.highPriority,
+                            label: Text('High'),
+                            icon: Icon(Icons.priority_high_rounded),
+                          ),
+                        ],
+                        selected: {_selectedPriority},
+                        onSelectionChanged: (selection) {
+                          HapticFeedback.selectionClick();
+                          setState(() {
+                            _selectedPriority = selection.first;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 28),
+                      ElevatedButton.icon(
+                        onPressed: _isLoading ? null : _saveTask,
+                        icon: const Icon(Icons.save_rounded),
+                        label: Text(
+                          _isEditing ? 'Save Changes' : 'Create Task',
                         ),
-                        ButtonSegment<String>(
-                          value: TaskModel.highPriority,
-                          label: Text('High'),
-                          icon: Icon(Icons.priority_high_rounded),
-                        ),
-                      ],
-                      selected: {_selectedPriority},
-                      onSelectionChanged: (selection) {
-                        setState(() {
-                          _selectedPriority = selection.first;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 28),
-                    ElevatedButton.icon(
-                      onPressed: _isLoading ? null : _saveTask,
-                      icon: const Icon(Icons.save_rounded),
-                      label: Text(_isEditing ? 'Save Changes' : 'Create Task'),
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TaskFormHeader extends StatelessWidget {
+  final bool isEditing;
+
+  const _TaskFormHeader({required this.isEditing});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 18),
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              theme.colorScheme.secondaryContainer,
+              theme.colorScheme.surfaceContainerHighest,
+            ],
+          ),
+          border: Border.all(color: theme.colorScheme.outlineVariant),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface.withValues(alpha: 0.76),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Icon(
+                isEditing ? Icons.edit_note_rounded : Icons.add_task_rounded,
+                color: theme.colorScheme.secondary,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isEditing ? 'Refine the task' : 'Create a focus block',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Clear title, real deadline, honest priority.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -347,6 +437,68 @@ class _DueDateField extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _DateShortcutBar extends StatelessWidget {
+  final VoidCallback onToday;
+  final VoidCallback onTomorrow;
+  final VoidCallback onNextWeek;
+
+  const _DateShortcutBar({
+    required this.onToday,
+    required this.onTomorrow,
+    required this.onNextWeek,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        _DateShortcut(
+          label: 'Today',
+          icon: Icons.today_rounded,
+          onTap: onToday,
+        ),
+        _DateShortcut(
+          label: 'Tomorrow',
+          icon: Icons.event_available_rounded,
+          onTap: onTomorrow,
+        ),
+        _DateShortcut(
+          label: 'Next week',
+          icon: Icons.next_week_rounded,
+          onTap: onNextWeek,
+        ),
+      ],
+    );
+  }
+}
+
+class _DateShortcut extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _DateShortcut({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return ActionChip(
+      avatar: Icon(icon, size: 18),
+      label: Text(label),
+      onPressed: onTap,
+      backgroundColor: theme.colorScheme.surface,
+      side: BorderSide(color: theme.colorScheme.outlineVariant),
     );
   }
 }

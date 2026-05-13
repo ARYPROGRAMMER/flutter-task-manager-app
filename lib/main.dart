@@ -17,12 +17,12 @@ void main() async {
 class TaskManagerApp extends StatelessWidget {
   const TaskManagerApp({super.key});
 
-  static const Color _brandPrimary = Color(0xFF176B5B);
-  static const Color _brandSecondary = Color(0xFF437A54);
-  static const Color _brandTertiary = Color(0xFFE0A13A);
-  static const Color _brandError = Color(0xFFB3261E);
-  static const Color _brandSurface = Color(0xFFF7FAF5);
-  static const Color _brandSurfaceContainer = Color(0xFFEAF1E8);
+  static const Color _brandPrimary = Color(0xFF0F766E);
+  static const Color _brandSecondary = Color(0xFF4F46E5);
+  static const Color _brandTertiary = Color(0xFFF59E0B);
+  static const Color _brandError = Color(0xFFE11D48);
+  static const Color _brandSurface = Color(0xFFF8FAFC);
+  static const Color _brandSurfaceContainer = Color(0xFFEFF6FF);
 
   ThemeData _buildTheme() {
     final colorScheme =
@@ -36,6 +36,13 @@ class TaskManagerApp extends StatelessWidget {
           error: _brandError,
           surface: _brandSurface,
           surfaceContainerHighest: _brandSurfaceContainer,
+          primaryContainer: const Color(0xFFCCFBF1),
+          secondaryContainer: const Color(0xFFE0E7FF),
+          tertiaryContainer: const Color(0xFFFEF3C7),
+          errorContainer: const Color(0xFFFFE4E6),
+          onSurface: const Color(0xFF111827),
+          onSurfaceVariant: const Color(0xFF64748B),
+          outlineVariant: const Color(0xFFD8E2EA),
         );
 
     final textTheme = Typography.material2021().black.apply(
@@ -61,6 +68,7 @@ class TaskManagerApp extends StatelessWidget {
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: colorScheme.surface,
         indicatorColor: colorScheme.primaryContainer,
+        height: 74,
         labelTextStyle: WidgetStatePropertyAll(
           textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700),
         ),
@@ -125,6 +133,19 @@ class TaskManagerApp extends StatelessWidget {
             fontWeight: FontWeight.w800,
           ),
         ),
+      ),
+      chipTheme: ChipThemeData(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        side: BorderSide(color: colorScheme.outlineVariant),
+        labelStyle: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800),
+        selectedColor: colorScheme.primaryContainer,
+        backgroundColor: colorScheme.surface,
+      ),
+      cardTheme: CardThemeData(
+        elevation: 0,
+        color: colorScheme.surface,
+        surfaceTintColor: colorScheme.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,

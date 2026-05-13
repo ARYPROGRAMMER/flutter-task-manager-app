@@ -9,10 +9,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  animations: ^2.2.0
   cloud_firestore: ^6.4.0
   cupertino_icons: ^1.0.8
   firebase_auth: ^6.5.0
   firebase_core: ^4.8.0
+  flutter_slidable: ^4.0.3
   google_sign_in: ^6.2.1
   http: ^1.6.0
   intl: ^0.20.2
