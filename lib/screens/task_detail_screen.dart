@@ -219,6 +219,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                         controller: _descriptionController,
                         labelText: 'Description',
                         prefixIcon: Icons.notes_rounded,
+                        keyboardType: TextInputType.multiline,
                         textInputAction: TextInputAction.newline,
                         textCapitalization: TextCapitalization.sentences,
                         minLines: 4,
