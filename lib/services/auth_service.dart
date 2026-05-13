@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
@@ -64,6 +65,8 @@ class AuthService {
       return true;
     } on FirebaseAuthException {
       rethrow;
+    } on PlatformException catch (error) {
+      throw AuthServiceException(_googleSignInPlatformMessage(error));
     } catch (error) {
       throw AuthServiceException(
         'Unable to sign in with Google. ${error.toString()}',
@@ -80,6 +83,18 @@ class AuthService {
     } catch (error) {
       throw AuthServiceException('Unable to log out. ${error.toString()}');
     }
+  }
+
+  String _googleSignInPlatformMessage(PlatformException error) {
+    final details = error.message ?? error.details?.toString() ?? '';
+    final isDeveloperConfigurationError =
+        error.code == 'sign_in_failed' && details.contains(': 10:');
+
+    if (isDeveloperConfigurationError) {
+      return 'Google sign-in is not configured for this APK. Add this app package and signing SHA fingerprint in Firebase, download the updated google-services.json, then rebuild.';
+    }
+
+    return 'Unable to sign in with Google. ${error.message ?? error.code}';
   }
 }
 
