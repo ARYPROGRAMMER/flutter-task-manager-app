@@ -1,0 +1,37 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /tasks/{taskId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.keys().hasOnly([
+          'title',
+          'description',
+          'dueDate',
+          'status',
+          'createdAt',
+          'priority',
+          'userId'
+        ])
+        && request.resource.data.status in ['pending', 'completed']
+        && request.resource.data.priority in ['low', 'medium', 'high'];
+      allow update: if request.auth != null
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.keys().hasOnly([
+          'title',
+          'description',
+          'dueDate',
+          'status',
+          'createdAt',
+          'priority',
+          'userId'
+        ])
+        && request.resource.data.status in ['pending', 'completed']
+        && request.resource.data.priority in ['low', 'medium', 'high'];
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+  }
+}
