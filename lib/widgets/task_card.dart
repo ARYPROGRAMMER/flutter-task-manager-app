@@ -38,7 +38,7 @@ class TaskCard extends StatelessWidget {
 
     return Dismissible(
       key: Key(task.id),
-      direction: DismissibleDirection.endToStart,
+      direction: DismissDirection.endToStart,
       confirmDismiss: (direction) async {
         return await showDialog<bool>(
           context: context,
@@ -111,7 +111,7 @@ class TaskCard extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                               decoration: BoxDecoration(
-                                color: _getPriorityColor(task.priority).withOpacity(0.2),
+                                color: _getPriorityColor(task.priority).withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(12.0),
                               ),
                               child: Text(

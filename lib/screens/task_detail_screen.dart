@@ -99,9 +99,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         Navigator.pop(context);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving task: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error saving task: $e')),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -113,7 +115,6 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final isEditing = widget.task != null;
 
     return Scaffold(
@@ -185,7 +186,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
               ),
               const SizedBox(height: 24.0),
               DropdownButtonFormField<String>(
-                value: _selectedPriority,
+                initialValue: _selectedPriority,
                 decoration: InputDecoration(
                   labelText: 'Priority',
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),

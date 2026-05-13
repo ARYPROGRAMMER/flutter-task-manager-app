@@ -72,6 +72,38 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> _handleGoogleLogin() async {
+    setState(() {
+      _isLoading = true;
+      _authErrorMessage = null;
+    });
+
+    try {
+      final authService = Provider.of<AuthService>(context, listen: false);
+      final userCredential = await authService.signInWithGoogle();
+      if (userCredential != null && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      }
+    } on FirebaseAuthException catch (error) {
+      setState(() {
+        _authErrorMessage = error.message ?? 'An unknown error occurred during Google sign in.';
+      });
+    } catch (error) {
+      setState(() {
+        _authErrorMessage = error.toString();
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -148,6 +180,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     child: const Text('Login'),
+                  ),
+                  const SizedBox(height: 16),
+                  OutlinedButton.icon(
+                    onPressed: _isLoading ? null : _handleGoogleLogin,
+                    icon: const Icon(Icons.login),
+                    label: const Text('Sign in with Google'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   TextButton(

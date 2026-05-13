@@ -119,7 +119,7 @@ class ProfileScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: theme.colorScheme.errorContainer,
                 foregroundColor: theme.colorScheme.onErrorContainer,
-                minimumSize: const Size.infinity,
+                minimumSize: const Size(double.infinity, 50),
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16.0),
