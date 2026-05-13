@@ -1,16 +1,27 @@
-# task_manager
+# Flutter Task Manager App
 
-A new Flutter project.
+## Prerequisites
+- Flutter SDK (stable channel)
+- Firebase CLI installed (
+pm install -g firebase-tools)
+- FlutterFire CLI installed (dart pub global activate flutterfire_cli)
 
-## Getting Started
+## Firebase Setup
+1. Create a Firebase project in the Firebase Console.
+2. Enable Email/Password Authentication.
+3. Create a Cloud Firestore database in test mode or update rules to allow authenticated user access.
+4. Run flutterfire configure in the project root to generate firebase_options.dart.
 
-This project is a starting point for a Flutter application.
+## Adding google-services.json
+1. Download google-services.json from your Firebase Console for the Android app.
+2. Place the google-services.json file inside the android/app/ directory.
 
-A few resources to get you started if this is your first Flutter project:
+## Running the App
+`bash
+flutter pub get
+flutter run
+``n
+## Release APK
+The compiled debug APK can be found at:
+/build/app/outputs/flutter-apk/app-debug.apk
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
